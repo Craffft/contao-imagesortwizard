@@ -1,0 +1,5 @@
+.tl_picsortwizard li{cursor: move;}
+.tl_picsortwizard, .tl_picsortwizard li{margin:0; padding:0; list-style:none;}
+.tl_picsortwizard li{padding-bottom:10px; margin-bottom:10px; height: 70px; border-bottom: 1px solid #ddd;}
+.tl_picsortwizard .tl_text{width:586px;}
+.tl_picsortwizard_img{position:relative; top:3px;}
