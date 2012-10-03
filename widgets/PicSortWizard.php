@@ -1,42 +1,30 @@
-<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
+<?php 
 
 /**
  * Contao Open Source CMS
- * Copyright (C) 2005-2011 Leo Feyer
- *
- * Formerly known as TYPOlight Open Source CMS.
- *
- * This program is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation, either
- * version 3 of the License, or (at your option) any later version.
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
+ * Copyright (C) 2005-2012 Leo Feyer
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this program. If not, please visit the Free
- * Software Foundation website at <http://www.gnu.org/licenses/>.
- *
- * PHP version 5
- * @copyright  Daniel Kiesel 2012 
- * @author     Daniel Kiesel 
- * @package    pic_sort_wizard 
- * @license    LGPL 
- * @filesource
+ * @package   PicSortWizard 
+ * @author    Daniel Kiesel <https://github.com/icodr8> 
+ * @license   LGPL 
+ * @copyright Daniel Kiesel 2012 
  */
 
+
+/**
+ * Namespace
+ */
+namespace PicSortWizard;
 
 /**
  * Class PicSortWizard 
  *
  * @copyright  Daniel Kiesel 2012 
- * @author     Daniel Kiesel 
- * @package    Controller
+ * @author     Daniel Kiesel <https://github.com/icodr8> 
+ * @package    PicSortWizard
  */
-class PicSortWizard extends Widget
+class PicSortWizard extends \Widget
 {
 
 	/**
@@ -118,19 +106,19 @@ class PicSortWizard extends Widget
 
 			$this->redirect(preg_replace('/&(amp;)?cid=[^&]*/i', '', preg_replace('/&(amp;)?' . preg_quote($strCommand, '/') . '=[^&]*/i', '', $this->Environment->request)));
 		}
-
-		// Make sure there is at least an empty array
-		if (!is_array($this->varValue) || count($this->varValue) < 1)
-		{
-			$this->varValue = array();
-		}
-
+		
 		$tabindex = 0;
 		$return .= '<ul id="ctrl_'.$this->strId.'" class="tl_picsortwizard">';
 		
 		
 		// Get sort Pictures
-		$this->sortPictures = $this->getSortPictures();
+		$this->sortPictures = $this->getSortedPictures();
+		
+		// Make sure there is at least an empty array
+		if (!is_array($this->varValue) || count($this->varValue) < 1)
+		{
+			$this->varValue = array();
+		}
 		
 		// Set var sortPictures as array if there is none
 		if (!is_array($this->sortPictures) || count($this->sortPictures) < 1)
@@ -138,83 +126,103 @@ class PicSortWizard extends Widget
 			$this->sortPictures = array();
 		}
 		
+		// Set var value
+		$newVarValue = array();
+		
 		// Remove old Pictures
-		foreach ($this->varValue as $i => $value)
+		if(count($this->varValue) > 0)
 		{
-			if (is_array($this->sortPictures) && $this->sortPictures>0)
+			$objFiles = (\FilesModel::findMultipleByIds($this->varValue));
+			
+			if($objFiles !== null)
 			{
-				if (in_array($value, $this->sortPictures) && file_exists(TL_ROOT . '/' . $value))
+				while($objFiles->next())
 				{
-					$newVarValue[] = $this->varValue[$i];
+					if(count($this->sortPictures) > 0)
+					{
+						if (in_array($objFiles->id, $this->sortPictures))
+						{
+							$newVarValue[] = $objFiles->id;
+						}
+					}
 				}
 			}
 		}
 		
-		// Set varValue
-		if (is_array($newVarValue) && $newVarValue>0)
-		{
-			$this->varValue = $newVarValue;
-		}
+		// Set newVarValue in varValue
+		$this->varValue = $newVarValue;
 		
 		// Add new Pictures
-		foreach ($this->sortPictures as $i => $value)
+		if(count($this->sortPictures) > 0)
 		{
-			if (is_array($this->varValue) && $this->varValue>0)
+			$objFiles = (\FilesModel::findMultipleByIds($this->sortPictures));
+			
+			if($objFiles !== null)
 			{
-				if (!in_array($value, $this->varValue))
+				while($objFiles->next())
 				{
-					$this->varValue[] = $value;
+					if(count($this->varValue) > 0)
+					{
+						if (!in_array($objFiles->id, $this->varValue))
+						{
+							$this->varValue[] = $objFiles->id;
+						}
+					}
 				}
 			}
 		}
 		
+		$objFiles = (\FilesModel::findMultipleByIds($this->varValue));
 		
-		// Add input fields
-		for ($i=0; $i<count($this->varValue); $i++)
+		if($objFiles !== null)
 		{
-			$first = ($i==0) ? true : false;
-			$last = ($i==(count($this->varValue)-1)) ? true : false;
+			$i = 0;
+			$rows = ($objFiles->count()-1);
 			
-			// Generate thumbnail
-			$currentFile = $this->varValue[$i];
-			$currentEncoded = $this->urlEncode($currentFile);
-			
-			$objFile = new File($currentFile);
-			
-			// Generate thumbnail
-			if ($objFile->isGdImage && $objFile->height > 0)
+			while($objFiles->next())
 			{
-				if ($GLOBALS['TL_CONFIG']['thumbnails'] && $objFile->height <= $GLOBALS['TL_CONFIG']['gdMaxImgHeight'] && $objFile->width <= $GLOBALS['TL_CONFIG']['gdMaxImgWidth'])
-			    {
-			    	$_height = ($objFile->height < 70) ? $objFile->height : 70;
-			    	$_width = (($objFile->width * $_height / $objFile->height) > 400) ? 90 : '';
-			
-			    	$thumbnail = '<img src="' . TL_FILES_URL . $this->getImage($currentEncoded, $_width, $_height) . '" alt="" style="margin:0px 0px 2px 23px;">';
-			    }
-			}
-			
-			if ($first==true)
-			{
-				$return .= '<li class="first">';
-			}
-			else if ($last==true)
-			{
-				$return .= '<li class="last">';
-			}
-			else
-			{
-				$return .= '<li>';
-			}
-			$return .= $thumbnail;
-			$return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars($this->varValue[$i]).'"' . $this->getAttributes() . '> ';
+				$first = ($i == 0) ? true : false;
+				$last = ($i == $rows) ? true : false;
 				
-				// Add buttons
-				foreach ($arrButtons as $button)
+				$objFile = new \File($objFiles->path);
+				
+				// Generate thumbnail
+				if ($objFile->isGdImage && $objFile->height > 0)
 				{
-					$return .= '<a class="tl_content_right" href="'.$this->addToUrl('&amp;'.$strCommand.'='.$button.'&amp;cid='.$i.'&amp;id='.$this->currentRecord).'" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['lw_'.$button]).'" onclick="Backend.picSortWizard(this, \''.$button.'\', \'ctrl_'.$this->strId.'\'); return false;">'.$this->generateImage($button.'.gif', $GLOBALS['TL_LANG']['MSC']['lw_'.$button], 'class="tl_picsortwizard_img"').'</a> ';
+					if ($GLOBALS['TL_CONFIG']['thumbnails'] && $objFile->height <= $GLOBALS['TL_CONFIG']['gdMaxImgHeight'] && $objFile->width <= $GLOBALS['TL_CONFIG']['gdMaxImgWidth'])
+				    {
+					    $_height = ($objFile->height < 70) ? $objFile->height : 70;
+				    	$_width = (($objFile->width * $_height / $objFile->height) > 400) ? 90 : '';
+				    	
+				    	$thumbnail = '<img src="' . TL_FILES_URL . $this->getImage($objFiles->path, $_width, $_height) . '" alt="thumbnail" style="margin:0px 0px 2px 23px;">';
+				    }
 				}
 				
-			$return .= '</li>';
+				if ($first==true)
+				{
+					$return .= '<li class="first">';
+				}
+				else if ($last==true)
+				{
+					$return .= '<li class="last">';
+				}
+				else
+				{
+					$return .= '<li>';
+				}
+				$return .= $thumbnail;
+				$return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars($this->varValue[$i]).'"' . $this->getAttributes() . '> ';
+					
+					// Add buttons
+					foreach ($arrButtons as $button)
+					{
+						$return .= '<a class="tl_content_right" href="'.$this->addToUrl('&amp;'.$strCommand.'='.$button.'&amp;cid='.$i.'&amp;id='.$this->currentRecord).'" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['lw_'.$button]).'" onclick="Backend.picSortWizard(this, \''.$button.'\', \'ctrl_'.$this->strId.'\'); return false;">'.$this->generateImage($button.'.gif', $GLOBALS['TL_LANG']['MSC']['lw_'.$button], 'class="tl_picsortwizard_img"').'</a> ';
+					}
+					
+				$return .= '</li>';
+				
+				$i++;
+			}
 		}
 		
 		$return .= '</ul>';
@@ -224,18 +232,15 @@ class PicSortWizard extends Widget
 	}
 	
 	
-	/**
-	 * getSortPictures function.
-	 * 
-	 * @access public
-	 * @return array
-	 */
-	public function getSortPictures()
+	public function getSortedPictures()
 	{
 		if (!$this->sortfiles)
 		{
 			return false;
 		}
+		
+		// Set arrays
+		$arrSortfiles = array();
 		
 		// Import
 		$this->import('Database');
@@ -243,111 +248,17 @@ class PicSortWizard extends Widget
 		
 		// Get Sortfiles
 		$objSortfiles = $this->Database->prepare("SELECT " . $this->sortfiles . " FROM " . $this->strTable . " WHERE id=?")
-						   ->execute($this->currentRecord);
+										->execute($this->currentRecord);
 		
 		// Fetch
 		$arrSortfiles = $objSortfiles->fetchAssoc();
-		$arrSortfiles = deserialize($arrSortfiles[$this->sortfiles]);
+		$arrIds = deserialize($arrSortfiles[$this->sortfiles]);
 		
-		// Set array
-		$allSortfiles = array();
+		// Create new object from PicSorter and get unsorted files
+		$objPicSorter = new PicSorter($arrIds, $this->extensions);
+		$objPicSorter->sortPicsBy('custom', 'ASC');
 		
-		// Check array
-		if (!is_array($arrSortfiles) || count($arrSortfiles) < 1)
-		{
-			$arrSortfiles = array();
-		}
-		
-		// For each path
-		foreach ($arrSortfiles as $strSortPath)
-		{
-			$allSortfiles = array_merge($allSortfiles, $this->scanDirRecursive($strSortPath, $this->extensions));
-		}
-		
-		return array_unique($allSortfiles);
-	}
-	
-	
-	/**
-	 * getUnsortedPictures function.
-	 * 
-	 * @access public
-	 * @param mixed $arrSortfiles
-	 * @return void
-	 */
-	public function getUnsortedPictures($arrSortfiles, $extensions = NULL)
-	{
-		// Set array
-		$allSortfiles = array();
-		
-		// Check arrSortfiles
-		if (is_array($arrSortfiles) || count($arrSortfiles) > 0)
-		{				
-			// For each path
-			foreach ($arrSortfiles as $strSortPath)
-			{
-				$allSortfiles = array_merge($allSortfiles, $this->scanDirRecursive($strSortPath, $extensions));
-			}
-		}
-		
-		return array_unique($allSortfiles);
-	}
-	
-	
-	/**
-	 * scanDirRecursive function.
-	 * 
-	 * @access public
-	 * @param string $strPath
-	 * @param string $extensions (default: NULL)
-	 * @return array
-	 */
-	public function scanDirRecursive($strPath, $extensions = NULL)
-	{
-		$arrPaths = array();
-		$strAbsPath = TL_ROOT . '/' . $strPath;
-		
-		if (is_dir($strAbsPath))
-		{
-			foreach (scan($strAbsPath) as $strScanPath)
-			{
-				$strAbsScanPath = $strAbsPath . '/' . $strScanPath;
-				$strRelScanPath = $strPath . '/' . $strScanPath;
-				
-				// AUSKOMMENTIERT DA DER CODE KEINEN SINN MACHT!
-				/*if (is_dir($strAbsScanPath))
-				{*/
-					$varScan = $this->scanDirRecursive($strRelScanPath, $extensions);
-					
-					if (is_array($varScan) && count($varScan) > 0)
-					{
-						$arrPaths = array_merge($arrPaths, $varScan);
-					}
-				/*}
-				else if (is_file($strAbsScanPath))
-				{
-					$pathinfo = pathinfo($strAbsScanPath);
-					$uploadTypes = trimsplit(',', $extensions);
-					
-					if (in_array(strtolower($pathinfo['extension']), $uploadTypes) || $extensions == NULL)
-					{
-						$arrPaths[] = $strRelScanPath;
-					}
-				}*/
-			}
-		}
-		else
-		{
-			$pathinfo = pathinfo($strAbsPath);
-			$uploadTypes = trimsplit(',', $extensions);
-			
-			if (in_array(strtolower($pathinfo['extension']), $uploadTypes) || $extensions == NULL)
-			{
-			    $arrPaths[] = $strPath;
-			}
-		}
-		
-		return array_unique($arrPaths);
+		return $objPicSorter->getPicIds();
 	}
 
 
