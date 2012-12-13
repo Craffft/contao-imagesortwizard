@@ -5,7 +5,7 @@
  * 
  * Copyright (C) 2005-2012 Leo Feyer
  * 
- * @package   PicSortWizard 
+ * @package   ImageSortWizard 
  * @author    Daniel Kiesel <https://github.com/icodr8> 
  * @license   LGPL 
  * @copyright Daniel Kiesel 2012 
@@ -15,20 +15,43 @@
 /**
  * Namespace
  */
-namespace PicSortWizard;
+namespace ImageSortWizard;
 
 /**
- * Class PicSorter 
+ * Class ImageSorter 
  *
  * @copyright  Daniel Kiesel 2012 
  * @author     Daniel Kiesel <https://github.com/icodr8> 
- * @package    PicSortWizard
+ * @package    ImageSortWizard
  */
-class PicSorter extends \Controller
+class ImageSorter extends \Controller
 {
+	/**
+	 * arrIds
+	 * 
+	 * @var array
+	 * @access private
+	 */
 	private $arrIds;
+	
+	
+	/**
+	 * arrExtensions
+	 * 
+	 * @var array
+	 * @access private
+	 */
 	private $arrExtensions;
 	
+	
+	/**
+	 * __construct function.
+	 * 
+	 * @access public
+	 * @param array $arrIds
+	 * @param string $strExtensions (default: null)
+	 * @return void
+	 */
 	public function __construct($arrIds, $strExtensions = null)
 	{
 		if(!is_array($arrIds))
@@ -39,13 +62,20 @@ class PicSorter extends \Controller
 		// Set extensions
 		$this->setExtensions($strExtensions);
 		
-		// Set all pic ids
-		$this->setAllPicIds($arrIds);
+		// Set all image ids
+		$this->setAllImageIds($arrIds);
 		
 		parent::__construct();
 	}
 	
 	
+	/**
+	 * setExtensions function.
+	 * 
+	 * @access protected
+	 * @param string $strExtensions
+	 * @return void
+	 */
 	protected function setExtensions($strExtensions)
 	{
 		$this->arrExtensions = array();
@@ -57,7 +87,14 @@ class PicSorter extends \Controller
 	}
 	
 	
-	protected function setAllPicIds($arrIds)
+	/**
+	 * setAllImageIds function.
+	 * 
+	 * @access protected
+	 * @param array $arrIds
+	 * @return void
+	 */
+	protected function setAllImageIds($arrIds)
 	{
 		$arrAllIds = array();
 		
@@ -75,6 +112,13 @@ class PicSorter extends \Controller
 	}
 	
 	
+	/**
+	 * scanDirRecursive function.
+	 * 
+	 * @access protected
+	 * @param int $intId
+	 * @return array
+	 */
 	protected function scanDirRecursive($intId)
 	{
 		$arrIds = array();
@@ -121,14 +165,25 @@ class PicSorter extends \Controller
 	}
 	
 	
-	public function sortPicsBy($varSortField, $varSortType = 'ASC')
+	/**
+	 * sortImagesBy function.
+	 * 
+	 * @access public
+	 * @param string $strSortKey
+	 * @param string $strSortDirection (default: 'ASC')
+	 * @return bool
+	 */
+	public function sortImagesBy($strSortKey, $strSortDirection = 'ASC')
 	{
 		if(!is_array($this->arrIds) || count($this->arrIds) < 1)
 		{
 			return false;
 		}
 		
-		$varSortType = strtoupper($varSortType);
+		// Lower and uppercase for attributes
+		$strSortKey = strtolower($strSortKey);
+		$strSortDirection = strtoupper($strSortDirection);
+		
 		
 		/**
 		 * SET SORT FIELDS HERE
@@ -139,11 +194,11 @@ class PicSorter extends \Controller
 		 * random
 		 * custom
 		 */
-		if($varSortField == 'custom')
+		if($strSortKey == 'custom')
 		{
 			// Do nothing
 		}
-		else if($varSortField == 'random')
+		else if($strSortKey == 'random')
 		{
 			$this->arrIds = array_shuffle($this->arrIds);
 		}
@@ -153,9 +208,9 @@ class PicSorter extends \Controller
 			
 			foreach($this->arrIds as $intId)
 			{
-				$objFiles = \PicSortWizard\FilesModel::findByPk($intId);
+				$objFiles = \ImageSortWizard\FilesModel::findByPk($intId);
 				
-				switch($varSortField)
+				switch($strSortKey)
 				{
 					case 'metatitle':
 						// Meta title
@@ -171,6 +226,8 @@ class PicSorter extends \Controller
 								$metaTitle = $objFiles->meta[$GLOBALS['TL_LANGUAGE']]['title'];
 							}
 						}
+						
+						$arrSort[$objFiles->id] = $metaTitle;
 					break;
 					
 					case 'filename':
@@ -205,7 +262,7 @@ class PicSorter extends \Controller
 			$this->arrIds = array_keys($arrSort);
 		}
 		
-		if($varSortType == 'DESC')
+		if($strSortDirection == 'DESC')
 		{
 			$this->arrIds = array_reverse($this->arrIds);
 		}
@@ -214,7 +271,13 @@ class PicSorter extends \Controller
 	}
 	
 	
-	public function getPicIds()
+	/**
+	 * getImageIds function.
+	 * 
+	 * @access public
+	 * @return array
+	 */
+	public function getImageIds()
 	{
 		return $this->arrIds;
 	}

@@ -5,7 +5,7 @@
  * 
  * Copyright (C) 2005-2012 Leo Feyer
  * 
- * @package Pic_sort_wizard
+ * @package ImageSortWizard
  * @link    http://www.contao.org
  * @license http://www.gnu.org/licenses/lgpl-3.0.html LGPL
  */
@@ -16,7 +16,7 @@
  */
 ClassLoader::addNamespaces(array
 (
-	'PicSortWizard',
+	'ImageSortWizard',
 ));
 
 
@@ -26,11 +26,11 @@ ClassLoader::addNamespaces(array
 ClassLoader::addClasses(array
 (
 	// Classes
-	'PicSortWizard\PicSorter'     => 'system/modules/pic_sort_wizard/classes/PicSorter.php',
+	'ImageSortWizard\ImageSorter'     => 'system/modules/image_sort_wizard/classes/ImageSorter.php',
 
 	// Models
-	'PicSortWizard\FilesModel'    => 'system/modules/pic_sort_wizard/models/FilesModel.php',
+	'ImageSortWizard\FilesModel'    => 'system/modules/image_sort_wizard/models/FilesModel.php',
 
 	// Widgets
-	'PicSortWizard\PicSortWizard' => 'system/modules/pic_sort_wizard/widgets/PicSortWizard.php',
+	'ImageSortWizard\ImageSortWizard' => 'system/modules/image_sort_wizard/widgets/ImageSortWizard.php',
 ));

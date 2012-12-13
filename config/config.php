@@ -23,7 +23,7 @@
  * PHP version 5
  * @copyright  Daniel Kiesel 2012 
  * @author     Daniel Kiesel 
- * @package    pic_sort_wizard 
+ * @package    image_sort_wizard 
  * @license    LGPL 
  * @filesource
  */
@@ -32,7 +32,7 @@
 /**
  * Form fields
  */
-$GLOBALS['BE_FFL']['PicSortWizard'] = 'PicSortWizard';
+$GLOBALS['BE_FFL']['ImageSortWizard'] = 'ImageSortWizard';
 
 
 /**
@@ -40,9 +40,9 @@ $GLOBALS['BE_FFL']['PicSortWizard'] = 'PicSortWizard';
  */
 if (TL_MODE == 'BE')
 {
-	$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/pic_sort_wizard/html/pic_sort_wizard.js';
-    $GLOBALS['TL_MOOTOOLS'][] = '<script>Backend.makeParentViewSortable(".tl_picsortwizard");</script>';
-    $GLOBALS['TL_CSS'][] = 'system/modules/pic_sort_wizard/html/pic_sort_wizard.css|screen';
+	$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/image_sort_wizard/html/image_sort_wizard.js';
+    $GLOBALS['TL_MOOTOOLS'][] = '<script>Backend.makeParentViewSortable(".tl_imagesortwizard");</script>';
+    $GLOBALS['TL_CSS'][] = 'system/modules/image_sort_wizard/html/image_sort_wizard.css|screen';
 }
  
 ?>
