@@ -200,7 +200,7 @@ class ImageSorter extends \Controller
 		}
 		else if($strSortKey == 'random')
 		{
-			$this->arrIds = array_shuffle($this->arrIds);
+			$this->arrIds = shuffle($this->arrIds);
 		}
 		else
 		{
