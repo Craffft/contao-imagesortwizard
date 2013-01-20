@@ -33,16 +33,5 @@
  * Form fields
  */
 $GLOBALS['BE_FFL']['ImageSortWizard'] = 'ImageSortWizard';
-
-
-/**
- * Add JavaScript and css
- */
-if (TL_MODE == 'BE')
-{
-	$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/image_sort_wizard/html/image_sort_wizard.js';
-    $GLOBALS['TL_MOOTOOLS'][] = '<script>Backend.makeParentViewSortable(".tl_imagesortwizard");</script>';
-    $GLOBALS['TL_CSS'][] = 'system/modules/image_sort_wizard/html/image_sort_wizard.css|screen';
-}
  
 ?>

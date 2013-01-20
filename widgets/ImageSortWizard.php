@@ -85,6 +85,14 @@ class ImageSortWizard extends \Widget
 		$arrButtons = array('up', 'down');
 		$strCommand = 'cmd_' . $this->strField;
 
+		// Add JavaScript and css
+		if (TL_MODE == 'BE')
+		{
+			$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/image_sort_wizard/html/image_sort_wizard.js';
+		    $GLOBALS['TL_MOOTOOLS'][] = '<script>Backend.makeParentViewSortable(".tl_imagesortwizard");</script>';
+		    $GLOBALS['TL_CSS'][] = 'system/modules/image_sort_wizard/html/image_sort_wizard.css|screen';
+		}
+
 		// Change the order
 		if ($this->Input->get($strCommand) && is_numeric($this->Input->get('cid')) && $this->Input->get('id') == $this->currentRecord)
 		{
