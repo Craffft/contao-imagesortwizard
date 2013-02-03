@@ -28,9 +28,6 @@ ClassLoader::addClasses(array
 	// Classes
 	'ImageSortWizard\ImageSorter'     => 'system/modules/image_sort_wizard/classes/ImageSorter.php',
 
-	// Models
-	'ImageSortWizard\FilesModel'    => 'system/modules/image_sort_wizard/models/FilesModel.php',
-
 	// Widgets
 	'ImageSortWizard\ImageSortWizard' => 'system/modules/image_sort_wizard/widgets/ImageSortWizard.php',
 ));

@@ -189,7 +189,7 @@ class ImageSorter extends \Controller
 		 * SET SORT FIELDS HERE
 		 * 
 		 * metatitle
-		 * filename
+		 * name
 		 * date
 		 * random
 		 * custom
@@ -208,53 +208,53 @@ class ImageSorter extends \Controller
 			
 			foreach($this->arrIds as $intId)
 			{
-				$objFiles = \ImageSortWizard\FilesModel::findByPk($intId);
+				$objFiles = \FilesModel::findByPk($intId);
 				
-				switch($strSortKey)
+				if ($objFiles !== null)
 				{
-					case 'metatitle':
-						// Meta title
-						$sortType = SORT_STRING;
-						$metaTitle = '';
-						
-						if($objFiles->meta != '')
-						{
-							$objFiles->meta = deserialize($objFiles->meta);
+					switch($strSortKey)
+					{
+						case 'metatitle':
+							$sortType = SORT_STRING;
+							$metaTitle = '';
 							
-							if($objFiles->meta[$GLOBALS['TL_LANGUAGE']]['title'] != '')
+							if($objFiles->meta != '')
 							{
-								$metaTitle = $objFiles->meta[$GLOBALS['TL_LANGUAGE']]['title'];
+								$objFiles->meta = deserialize($objFiles->meta);
+								
+								if($objFiles->meta[$GLOBALS['TL_LANGUAGE']]['title'] != '')
+								{
+									$metaTitle = $objFiles->meta[$GLOBALS['TL_LANGUAGE']]['title'];
+								}
 							}
-						}
+							
+							$arrSort[$objFiles->id] = $metaTitle;
+						break;
 						
-						$arrSort[$objFiles->id] = $metaTitle;
-					break;
-					
-					case 'filename':
-						// Date
-						$sortType = SORT_STRING;
-						$filename = '';
+						case 'name':
+							$sortType = SORT_STRING;
+							$filename = '';
+							
+							if($objFiles->name != '')
+							{
+								$filename = $objFiles->name;
+							}
+							
+							$arrSort[$objFiles->id] = $filename;
+						break;
 						
-						if($objFiles->name != '')
-						{
-							$filename = $objFiles->name;
-						}
-						
-						$arrSort[$objFiles->id] = $filename;
-					break;
-					
-					case 'date':
-						// Date
-						$sortType = SORT_NUMERIC;
-						$tstamp = '';
-						
-						if($objFiles->tstamp != '')
-						{
-							$tstamp = $objFiles->tstamp;
-						}
-						
-						$arrSort[$objFiles->id] = $tstamp;
-					break;
+						case 'date':
+							$sortType = SORT_NUMERIC;
+							$tstamp = '';
+							
+							if($objFiles->tstamp != '')
+							{
+								$tstamp = $objFiles->tstamp;
+							}
+							
+							$arrSort[$objFiles->id] = $tstamp;
+						break;
+					}
 				}
 			}
 			
