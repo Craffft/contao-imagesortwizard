@@ -1,14 +1,14 @@
-<?php 
+<?php
 
 /**
  * Contao Open Source CMS
- * 
+ *
  * Copyright (C) 2005-2012 Leo Feyer
- * 
- * @package   ImageSortWizard 
- * @author    Daniel Kiesel <https://github.com/icodr8> 
- * @license   LGPL 
- * @copyright Daniel Kiesel 2012-2013 
+ *
+ * @package   ImageSortWizard
+ * @author    Daniel Kiesel <https://github.com/icodr8>
+ * @license   LGPL
+ * @copyright Daniel Kiesel 2012-2013
  */
 
 
@@ -17,36 +17,38 @@
  */
 namespace ImageSortWizard;
 
+
 /**
- * Class ImageSorter 
+ * Class ImageSorter
  *
- * @copyright  Daniel Kiesel 2012-2013 
- * @author     Daniel Kiesel <https://github.com/icodr8> 
+ * @copyright  Daniel Kiesel 2012-2013
+ * @author     Daniel Kiesel <https://github.com/icodr8>
  * @package    ImageSortWizard
  */
 class ImageSorter extends \Controller
 {
+
 	/**
 	 * arrIds
-	 * 
+	 *
 	 * @var array
 	 * @access private
 	 */
 	private $arrIds;
-	
-	
+
+
 	/**
 	 * arrExtensions
-	 * 
+	 *
 	 * @var array
 	 * @access private
 	 */
 	private $arrExtensions;
-	
-	
+
+
 	/**
 	 * __construct function.
-	 * 
+	 *
 	 * @access public
 	 * @param array $arrIds
 	 * @param string $strExtensions (default: null)
@@ -58,20 +60,20 @@ class ImageSorter extends \Controller
 		{
 			return false;
 		}
-		
+
 		// Set extensions
 		$this->setExtensions($strExtensions);
-		
+
 		// Set all image ids
 		$this->setAllImageIds($arrIds);
-		
+
 		parent::__construct();
 	}
-	
-	
+
+
 	/**
 	 * setExtensions function.
-	 * 
+	 *
 	 * @access protected
 	 * @param string $strExtensions
 	 * @return void
@@ -79,17 +81,17 @@ class ImageSorter extends \Controller
 	protected function setExtensions($strExtensions)
 	{
 		$this->arrExtensions = array();
-		
+
 		if($strExtensions !== null)
 		{
 			$this->arrExtensions = explode(',', $strExtensions);
 		}
 	}
-	
-	
+
+
 	/**
 	 * setAllImageIds function.
-	 * 
+	 *
 	 * @access protected
 	 * @param array $arrIds
 	 * @return void
@@ -97,7 +99,7 @@ class ImageSorter extends \Controller
 	protected function setAllImageIds($arrIds)
 	{
 		$arrAllIds = array();
-		
+
 		// Check for array with content
 		if (is_array($arrIds) && count($arrIds) > 0)
 		{
@@ -107,14 +109,14 @@ class ImageSorter extends \Controller
 				$arrAllIds = array_merge($arrAllIds, $arrScan);
 			}
 		}
-		
+
 		$this->arrIds = array_unique($arrAllIds);
 	}
-	
-	
+
+
 	/**
 	 * scanDirRecursive function.
-	 * 
+	 *
 	 * @access protected
 	 * @param int $intId
 	 * @return array
@@ -123,18 +125,18 @@ class ImageSorter extends \Controller
 	{
 		$arrIds = array();
 		$objFile = \FilesModel::findByPk($intId);
-		
+
 		switch($objFile->type)
 		{
 			case 'folder':
 				$objChildren = \FilesModel::findByPid($intId);
-				
+
 				if($objChildren !== null)
 				{
 					while($objChildren->next())
 					{
-						$arrScan = $this->scanDirRecursive($objChildren->id, $extensions);
-						
+						$arrScan = $this->scanDirRecursive($objChildren->id);
+
 						if (is_array($arrScan) && count($arrScan) > 0)
 						{
 							$arrIds = array_merge($arrIds, $arrScan);
@@ -142,7 +144,7 @@ class ImageSorter extends \Controller
 					}
 				}
 			break;
-			
+
 			case 'file':
 				// Set only the file ids with the correct extension
 				if(count($this->arrExtensions) > 0)
@@ -152,7 +154,7 @@ class ImageSorter extends \Controller
 						$arrIds[] = $objFile->id;
 					}
 				}
-				
+
 				// Set all file ids if there are no extensions required
 				else
 				{
@@ -160,14 +162,14 @@ class ImageSorter extends \Controller
 				}
 			break;
 		}
-		
+
 		return array_unique($arrIds);
 	}
-	
-	
+
+
 	/**
 	 * sortImagesBy function.
-	 * 
+	 *
 	 * @access public
 	 * @param string $strSortKey
 	 * @param string $strSortDirection (default: 'ASC')
@@ -179,15 +181,15 @@ class ImageSorter extends \Controller
 		{
 			return false;
 		}
-		
+
 		// Lower and uppercase for attributes
 		$strSortKey = strtolower($strSortKey);
 		$strSortDirection = strtoupper($strSortDirection);
-		
-		
+
+
 		/**
 		 * SET SORT FIELDS HERE
-		 * 
+		 *
 		 * metatitle
 		 * name
 		 * date
@@ -205,11 +207,11 @@ class ImageSorter extends \Controller
 		else
 		{
 			$arrSort = array();
-			
+
 			foreach($this->arrIds as $intId)
 			{
 				$objFiles = \FilesModel::findByPk($intId);
-				
+
 				if ($objFiles !== null)
 				{
 					switch($strSortKey)
@@ -217,63 +219,63 @@ class ImageSorter extends \Controller
 						case 'metatitle':
 							$sortType = SORT_STRING;
 							$metaTitle = '';
-							
+
 							if($objFiles->meta != '')
 							{
 								$objFiles->meta = deserialize($objFiles->meta);
-								
+
 								if($objFiles->meta[$GLOBALS['TL_LANGUAGE']]['title'] != '')
 								{
 									$metaTitle = $objFiles->meta[$GLOBALS['TL_LANGUAGE']]['title'];
 								}
 							}
-							
+
 							$arrSort[$objFiles->id] = $metaTitle;
 						break;
-						
+
 						case 'name':
 							$sortType = SORT_STRING;
 							$filename = '';
-							
+
 							if($objFiles->name != '')
 							{
 								$filename = $objFiles->name;
 							}
-							
+
 							$arrSort[$objFiles->id] = $filename;
 						break;
-						
+
 						case 'date':
 							$sortType = SORT_NUMERIC;
 							$tstamp = '';
-							
+
 							if($objFiles->tstamp != '')
 							{
 								$tstamp = $objFiles->tstamp;
 							}
-							
+
 							$arrSort[$objFiles->id] = $tstamp;
 						break;
 					}
 				}
 			}
-			
+
 			asort($arrSort, $sortType);
 			$this->arrIds = array_keys($arrSort);
 		}
-		
+
 		if($strSortDirection == 'DESC')
 		{
 			$this->arrIds = array_reverse($this->arrIds);
 		}
-		
+
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * getImageIds function.
-	 * 
+	 *
 	 * @access public
 	 * @return array
 	 */
