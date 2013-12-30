@@ -1,6 +1,7 @@
-.tl_imagesortwizard li{cursor: move;}
+.tl_imagesortwizard{overflow: hidden; margin: 0 0 9px;}
 .tl_imagesortwizard, .tl_imagesortwizard li{margin:0; padding:0; list-style:none;}
-.tl_imagesortwizard li{padding-bottom:10px; margin-bottom:10px; height: 70px; border-bottom: 1px solid #ddd;}
+.tl_imagesortwizard li{cursor: move; float: left; margin: 0px; line-height: 0px;}
+.tl_imagesortwizard li img{margin: 2px; border: 1px solid #808080;}
 .tl_imagesortwizard .tl_text{width:586px;}
 .tl_imagesortwizard .tl_content_right{margin-left:0px;}
 .tl_imagesortwizard_img{position:relative; top:3px;}

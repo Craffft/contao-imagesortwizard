@@ -194,10 +194,10 @@ class ImageSortWizard extends \Widget
 				{
 					if ($GLOBALS['TL_CONFIG']['thumbnails'] && $objFile->height <= $GLOBALS['TL_CONFIG']['gdMaxImgHeight'] && $objFile->width <= $GLOBALS['TL_CONFIG']['gdMaxImgWidth'])
 				    {
-					    $_height = ($objFile->height < 70) ? $objFile->height : 70;
-				    	$_width = (($objFile->width * $_height / $objFile->height) > 400) ? 90 : '';
+				    	$_width = ($objFile->width < 80) ? $objFile->width : 80;
+					    $_height = ($objFile->height < 60) ? $objFile->height : 60;
 
-				    	$thumbnail = '<img src="' . TL_FILES_URL . $this->getImage($objFiles->path, $_width, $_height) . '" alt="thumbnail" style="margin:0px 0px 2px 23px;">';
+				    	$thumbnail = '<img src="' . TL_FILES_URL . $this->getImage($objFiles->path, $_width, $_height, 'center_center') . '" alt="thumbnail">';
 				    }
 				}
 
@@ -213,15 +213,9 @@ class ImageSortWizard extends \Widget
 				{
 					$return .= '<li>';
 				}
-				$return .= $thumbnail;
-				$return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars($this->varValue[$i]).'"' . $this->getAttributes() . '> ';
 
-					// Add buttons
-					foreach ($arrButtons as $button)
-					{
-						$return .= '<a class="tl_content_right" href="'.$this->addToUrl('&amp;'.$strCommand.'='.$button.'&amp;cid='.$i.'&amp;id='.$this->currentRecord).'" title="'.specialchars($GLOBALS['TL_LANG']['MSC']['lw_'.$button]).'" onclick="Backend.imageSortWizard(this, \''.$button.'\', \'ctrl_'.$this->strId.'\'); return false;">'.$this->generateImage($button.'.gif', $GLOBALS['TL_LANG']['MSC']['lw_'.$button], 'class="tl_imagesortwizard_img"').'</a> ';
-					}
-
+					$return .= $thumbnail;
+					$return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars($this->varValue[$i]).'"' . $this->getAttributes() . '>';
 				$return .= '</li>';
 
 				$i++;
