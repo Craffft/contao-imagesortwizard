@@ -89,9 +89,8 @@ class ImageSortWizard extends \Widget
 		// Add JavaScript and css
 		if (TL_MODE == 'BE')
 		{
-			$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/image_sort_wizard/html/image_sort_wizard.js';
-		    $GLOBALS['TL_MOOTOOLS'][] = '<script>Backend.makeParentViewSortable(".tl_imagesortwizard");</script>';
-		    $GLOBALS['TL_CSS'][] = 'system/modules/image_sort_wizard/html/image_sort_wizard.css|screen';
+			$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/image_sort_wizard/assets/js/image_sort_wizard.min.js';
+		    $GLOBALS['TL_CSS'][] = 'system/modules/image_sort_wizard/assets/css/image_sort_wizard.min.css|screen';
 		}
 
 		// Change the order
@@ -117,113 +116,98 @@ class ImageSortWizard extends \Widget
 		}
 
 		$tabindex = 0;
-		$return .= '<ul id="ctrl_'.$this->strId.'" class="tl_imagesortwizard">';
+		$return .= '<div id="ctrl_'.$this->strId.'" class="tl_image_sort_wizard">';
+			$return .= '<ul class="sortable">';
 
+			// Get sort Images
+			$this->sortImages = $this->getSortedImages();
 
-		// Get sort Images
-		$this->sortImages = $this->getSortedImages();
+			// Make sure there is at least an empty array
+			if (!is_array($this->varValue) || count($this->varValue) < 1)
+			{
+				$this->varValue = array();
+			}
 
-		// Make sure there is at least an empty array
-		if (!is_array($this->varValue) || count($this->varValue) < 1)
-		{
-			$this->varValue = array();
-		}
+			// Set var sortImages as array if there is none
+			if (!is_array($this->sortImages) || count($this->sortImages) < 1)
+			{
+				$this->sortImages = array();
+			}
 
-		// Set var sortImages as array if there is none
-		if (!is_array($this->sortImages) || count($this->sortImages) < 1)
-		{
-			$this->sortImages = array();
-		}
+			// Set var value
+			$newVarValue = array();
 
-		// Set var value
-		$newVarValue = array();
+			// Remove old Images
+			if(count($this->varValue) > 0)
+			{
+				$objFiles = (\FilesModel::findMultipleByIds($this->varValue));
 
-		// Remove old Images
-		if(count($this->varValue) > 0)
-		{
+				if($objFiles !== null)
+				{
+					while($objFiles->next())
+					{
+						if (in_array($objFiles->id, $this->sortImages))
+						{
+							$newVarValue[] = $objFiles->id;
+						}
+					}
+				}
+			}
+
+			// Set newVarValue in varValue
+			$this->varValue = $newVarValue;
+
+			// Add new Images
+			if(count($this->sortImages) > 0)
+			{
+				$objFiles = (\FilesModel::findMultipleByIds($this->sortImages));
+
+				if($objFiles !== null)
+				{
+					while($objFiles->next())
+					{
+						if (!in_array($objFiles->id, $this->varValue))
+						{
+							$this->varValue[] = $objFiles->id;
+						}
+					}
+				}
+			}
+
 			$objFiles = (\FilesModel::findMultipleByIds($this->varValue));
 
 			if($objFiles !== null)
 			{
+				$i = 0;
+				$rows = ($objFiles->count()-1);
+
 				while($objFiles->next())
 				{
-					if (in_array($objFiles->id, $this->sortImages))
+					$objFile = new \File($objFiles->path);
+
+					// Generate thumbnail
+					if ($objFile->isGdImage && $objFile->height > 0)
 					{
-						$newVarValue[] = $objFiles->id;
+						if ($GLOBALS['TL_CONFIG']['thumbnails'] && $objFile->height <= $GLOBALS['TL_CONFIG']['gdMaxImgHeight'] && $objFile->width <= $GLOBALS['TL_CONFIG']['gdMaxImgWidth'])
+					    {
+					    	$_width = ($objFile->width < 80) ? $objFile->width : 80;
+						    $_height = ($objFile->height < 60) ? $objFile->height : 60;
+
+					    	$thumbnail = '<img src="' . TL_FILES_URL . $this->getImage($objFiles->path, $_width, $_height, 'center_center') . '" alt="thumbnail">';
+					    }
 					}
-				}
-			}
-		}
 
-		// Set newVarValue in varValue
-		$this->varValue = $newVarValue;
-
-		// Add new Images
-		if(count($this->sortImages) > 0)
-		{
-			$objFiles = (\FilesModel::findMultipleByIds($this->sortImages));
-
-			if($objFiles !== null)
-			{
-				while($objFiles->next())
-				{
-					if (!in_array($objFiles->id, $this->varValue))
-					{
-						$this->varValue[] = $objFiles->id;
-					}
-				}
-			}
-		}
-
-		$objFiles = (\FilesModel::findMultipleByIds($this->varValue));
-
-		if($objFiles !== null)
-		{
-			$i = 0;
-			$rows = ($objFiles->count()-1);
-
-			while($objFiles->next())
-			{
-				$first = ($i == 0) ? true : false;
-				$last = ($i == $rows) ? true : false;
-
-				$objFile = new \File($objFiles->path);
-
-				// Generate thumbnail
-				if ($objFile->isGdImage && $objFile->height > 0)
-				{
-					if ($GLOBALS['TL_CONFIG']['thumbnails'] && $objFile->height <= $GLOBALS['TL_CONFIG']['gdMaxImgHeight'] && $objFile->width <= $GLOBALS['TL_CONFIG']['gdMaxImgWidth'])
-				    {
-				    	$_width = ($objFile->width < 80) ? $objFile->width : 80;
-					    $_height = ($objFile->height < 60) ? $objFile->height : 60;
-
-				    	$thumbnail = '<img src="' . TL_FILES_URL . $this->getImage($objFiles->path, $_width, $_height, 'center_center') . '" alt="thumbnail">';
-				    }
-				}
-
-				if ($first==true)
-				{
-					$return .= '<li class="first">';
-				}
-				else if ($last==true)
-				{
-					$return .= '<li class="last">';
-				}
-				else
-				{
 					$return .= '<li>';
+						$return .= $thumbnail;
+						$return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars($this->varValue[$i]).'"' . $this->getAttributes() . '>';
+					$return .= '</li>';
+
+					$i++;
 				}
-
-					$return .= $thumbnail;
-					$return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars($this->varValue[$i]).'"' . $this->getAttributes() . '>';
-				$return .= '</li>';
-
-				$i++;
 			}
-		}
 
-		$return .= '</ul>';
-		$return .= '<script>Backend.makeParentViewSortable(".tl_imagesortwizard");</script>';
+			$return .= '</ul>';
+		$return .= '</div>';
 
 		return $return;
 	}
