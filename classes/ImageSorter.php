@@ -29,12 +29,12 @@ class ImageSorter extends \Controller
 {
 
 	/**
-	 * arrIds
+	 * arrUuids
 	 *
 	 * @var array
 	 * @access private
 	 */
-	private $arrIds;
+	private $arrUuids;
 
 
 	/**
@@ -50,13 +50,13 @@ class ImageSorter extends \Controller
 	 * __construct function.
 	 *
 	 * @access public
-	 * @param array $arrIds
+	 * @param array $arrUuids
 	 * @param string $strExtensions (default: null)
 	 * @return void
 	 */
-	public function __construct($arrIds, $strExtensions = null)
+	public function __construct($arrUuids, $strExtensions = null)
 	{
-		if(!is_array($arrIds))
+		if(!is_array($arrUuids))
 		{
 			return false;
 		}
@@ -65,7 +65,7 @@ class ImageSorter extends \Controller
 		$this->setExtensions($strExtensions);
 
 		// Set all image ids
-		$this->setAllImageIds($arrIds);
+		$this->setAllImageUuids($arrUuids);
 
 		parent::__construct();
 	}
@@ -90,27 +90,27 @@ class ImageSorter extends \Controller
 
 
 	/**
-	 * setAllImageIds function.
+	 * setAllImageUuids function.
 	 *
 	 * @access protected
-	 * @param array $arrIds
+	 * @param array $arrUuids
 	 * @return void
 	 */
-	protected function setAllImageIds($arrIds)
+	protected function setAllImageUuids($arrUuids)
 	{
-		$arrAllIds = array();
+		$arrAllUuids = array();
 
 		// Check for array with content
-		if (is_array($arrIds) && count($arrIds) > 0)
+		if (is_array($arrUuids) && count($arrUuids) > 0)
 		{
-			foreach ($arrIds as $intId)
+			foreach ($arrUuids as $intId)
 			{
 				$arrScan = $this->scanDirRecursive($intId);
-				$arrAllIds = array_merge($arrAllIds, $arrScan);
+				$arrAllUuids = array_merge($arrAllUuids, $arrScan);
 			}
 		}
 
-		$this->arrIds = array_unique($arrAllIds);
+		$this->arrUuids = array_unique($arrAllUuids);
 	}
 
 
@@ -118,28 +118,28 @@ class ImageSorter extends \Controller
 	 * scanDirRecursive function.
 	 *
 	 * @access protected
-	 * @param int $intId
+	 * @param string $uuid
 	 * @return array
 	 */
-	protected function scanDirRecursive($intId)
+	protected function scanDirRecursive($uuid)
 	{
-		$arrIds = array();
-		$objFile = \FilesModel::findByPk($intId);
+		$arrUuids = array();
+		$objFile = \FilesModel::findByUuid($uuid);
 
 		switch($objFile->type)
 		{
 			case 'folder':
-				$objChildren = \FilesModel::findByPid($intId);
+				$objChildren = \FilesModel::findByPid($uuid);
 
 				if($objChildren !== null)
 				{
 					while($objChildren->next())
 					{
-						$arrScan = $this->scanDirRecursive($objChildren->id);
+						$arrScan = $this->scanDirRecursive($objChildren->uuid);
 
 						if (is_array($arrScan) && count($arrScan) > 0)
 						{
-							$arrIds = array_merge($arrIds, $arrScan);
+							$arrUuids = array_merge($arrUuids, $arrScan);
 						}
 					}
 				}
@@ -151,19 +151,19 @@ class ImageSorter extends \Controller
 				{
 					if(in_array($objFile->extension, $this->arrExtensions))
 					{
-						$arrIds[] = $objFile->id;
+						$arrUuids[] = $objFile->uuid;
 					}
 				}
 
 				// Set all file ids if there are no extensions required
 				else
 				{
-					$arrIds[] = $objFile->id;
+					$arrUuids[] = $objFile->uuid;
 				}
 			break;
 		}
 
-		return array_unique($arrIds);
+		return array_unique($arrUuids);
 	}
 
 
@@ -177,7 +177,7 @@ class ImageSorter extends \Controller
 	 */
 	public function sortImagesBy($strSortKey, $strSortDirection = 'ASC')
 	{
-		if(!is_array($this->arrIds) || count($this->arrIds) < 1)
+		if(!is_array($this->arrUuids) || count($this->arrUuids) < 1)
 		{
 			return false;
 		}
@@ -202,13 +202,13 @@ class ImageSorter extends \Controller
 		}
 		else if($strSortKey == 'random')
 		{
-			shuffle($this->arrIds);
+			shuffle($this->arrUuids);
 		}
 		else
 		{
 			$arrSort = array();
 
-			foreach($this->arrIds as $intId)
+			foreach($this->arrUuids as $intId)
 			{
 				$objFiles = \FilesModel::findByPk($intId);
 
@@ -261,12 +261,12 @@ class ImageSorter extends \Controller
 			}
 
 			asort($arrSort, $sortType);
-			$this->arrIds = array_keys($arrSort);
+			$this->arrUuids = array_keys($arrSort);
 		}
 
 		if($strSortDirection == 'DESC')
 		{
-			$this->arrIds = array_reverse($this->arrIds);
+			$this->arrUuids = array_reverse($this->arrUuids);
 		}
 
 		return true;
@@ -274,13 +274,13 @@ class ImageSorter extends \Controller
 
 
 	/**
-	 * getImageIds function.
+	 * getImageUuids function.
 	 *
 	 * @access public
 	 * @return array
 	 */
-	public function getImageIds()
+	public function getImageUuids()
 	{
-		return $this->arrIds;
+		return $this->arrUuids;
 	}
 }

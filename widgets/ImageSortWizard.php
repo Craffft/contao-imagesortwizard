@@ -140,15 +140,15 @@ class ImageSortWizard extends \Widget
 			// Remove old Images
 			if(count($this->varValue) > 0)
 			{
-				$objFiles = (\FilesModel::findMultipleByIds($this->varValue));
+				$objFiles = (\FilesModel::findMultipleByUuids($this->varValue));
 
 				if($objFiles !== null)
 				{
 					while($objFiles->next())
 					{
-						if (in_array($objFiles->id, $this->sortImages))
+						if (in_array($objFiles->uuid, $this->sortImages))
 						{
-							$newVarValue[] = $objFiles->id;
+							$newVarValue[] = $objFiles->uuid;
 						}
 					}
 				}
@@ -160,21 +160,21 @@ class ImageSortWizard extends \Widget
 			// Add new Images
 			if(count($this->sortImages) > 0)
 			{
-				$objFiles = (\FilesModel::findMultipleByIds($this->sortImages));
+				$objFiles = (\FilesModel::findMultipleByUuids($this->sortImages));
 
 				if($objFiles !== null)
 				{
 					while($objFiles->next())
 					{
-						if (!in_array($objFiles->id, $this->varValue))
+						if (!in_array($objFiles->uuid, $this->varValue))
 						{
-							$this->varValue[] = $objFiles->id;
+							$this->varValue[] = $objFiles->uuid;
 						}
 					}
 				}
 			}
 
-			$objFiles = (\FilesModel::findMultipleByIds($this->varValue));
+			$objFiles = (\FilesModel::findMultipleByUuids($this->varValue));
 
 			if($objFiles !== null)
 			{
@@ -239,7 +239,7 @@ class ImageSortWizard extends \Widget
 		$objImageSorter = new ImageSorter($arrIds, $this->extensions);
 		$objImageSorter->sortImagesBy('custom', 'ASC');
 
-		return $objImageSorter->getImageIds();
+		return $objImageSorter->getImageUuids();
 	}
 }
 
