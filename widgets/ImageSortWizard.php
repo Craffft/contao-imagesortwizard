@@ -140,15 +140,15 @@ class ImageSortWizard extends \Widget
 			// Remove old Images
 			if(count($this->varValue) > 0)
 			{
-				$objFiles = (\FilesModel::findMultipleByUuids($this->varValue));
+				$objFiles = (\FilesModel::findMultipleByIds($this->varValue));
 
 				if($objFiles !== null)
 				{
 					while($objFiles->next())
 					{
-						if (in_array($objFiles->uuid, $this->sortImages) || in_array($objFiles->id, $this->sortImages)) // Backwards compatibility (id)
+						if (in_array($objFiles->id, $this->sortImages))
 						{
-							$newVarValue[] = $objFiles->uuid;
+							$newVarValue[] = $objFiles->id;
 						}
 					}
 				}
@@ -160,21 +160,21 @@ class ImageSortWizard extends \Widget
 			// Add new Images
 			if(count($this->sortImages) > 0)
 			{
-				$objFiles = (\FilesModel::findMultipleByUuids($this->sortImages));
+				$objFiles = (\FilesModel::findMultipleByIds($this->sortImages));
 
 				if($objFiles !== null)
 				{
 					while($objFiles->next())
 					{
-						if (!in_array($objFiles->uuid, $this->varValue))
+						if (!in_array($objFiles->id, $this->varValue))
 						{
-							$this->varValue[] = $objFiles->uuid;
+							$this->varValue[] = $objFiles->id;
 						}
 					}
 				}
 			}
 
-			$objFiles = (\FilesModel::findMultipleByUuids($this->varValue));
+			$objFiles = (\FilesModel::findMultipleByIds($this->varValue));
 
 			if($objFiles !== null)
 			{
@@ -199,7 +199,7 @@ class ImageSortWizard extends \Widget
 
 					$return .= '<li>';
 						$return .= $thumbnail;
-						$return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars(\String::binToUuid($objFiles->uuid)).'"' . $this->getAttributes() . '>';
+						$return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars($this->varValue[$i]).'"' . $this->getAttributes() . '>';
 					$return .= '</li>';
 
 					$i++;
@@ -233,13 +233,13 @@ class ImageSortWizard extends \Widget
 
 		// Fetch
 		$arrSortfiles = $objSortfiles->fetchAssoc();
-		$arrUuids = deserialize($arrSortfiles[$this->sortfiles]);
+		$arrIds = deserialize($arrSortfiles[$this->sortfiles]);
 
 		// Create new object from ImageSorter and get unsorted files
-		$objImageSorter = new ImageSorter($arrUuids, $this->extensions);
+		$objImageSorter = new ImageSorter($arrIds, $this->extensions);
 		$objImageSorter->sortImagesBy('custom', 'ASC');
 
-		return $objImageSorter->getImageUuids();
+		return $objImageSorter->getImageIds();
 	}
 }
 

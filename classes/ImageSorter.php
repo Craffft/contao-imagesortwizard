@@ -29,12 +29,12 @@ class ImageSorter extends \Controller
 {
 
 	/**
-	 * arrUuids
+	 * arrIds
 	 *
 	 * @var array
 	 * @access private
 	 */
-	private $arrUuids;
+	private $arrIds;
 
 
 	/**
@@ -50,13 +50,13 @@ class ImageSorter extends \Controller
 	 * __construct function.
 	 *
 	 * @access public
-	 * @param array $arrUuids
+	 * @param array $arrIds
 	 * @param string $strExtensions (default: null)
 	 * @return void
 	 */
-	public function __construct($arrUuids, $strExtensions = null)
+	public function __construct($arrIds, $strExtensions = null)
 	{
-		if(!is_array($arrUuids))
+		if(!is_array($arrIds))
 		{
 			return false;
 		}
@@ -65,7 +65,7 @@ class ImageSorter extends \Controller
 		$this->setExtensions($strExtensions);
 
 		// Set all image ids
-		$this->setAllImageUuids($arrUuids);
+		$this->setAllImageIds($arrIds);
 
 		parent::__construct();
 	}
@@ -90,27 +90,27 @@ class ImageSorter extends \Controller
 
 
 	/**
-	 * setAllImageUuids function.
+	 * setAllImageIds function.
 	 *
 	 * @access protected
-	 * @param array $arrUuids
+	 * @param array $arrIds
 	 * @return void
 	 */
-	protected function setAllImageUuids($arrUuids)
+	protected function setAllImageIds($arrIds)
 	{
-		$arrAllUuids = array();
+		$arrAllIds = array();
 
 		// Check for array with content
-		if (is_array($arrUuids) && count($arrUuids) > 0)
+		if (is_array($arrIds) && count($arrIds) > 0)
 		{
-			foreach ($arrUuids as $uuid)
+			foreach ($arrIds as $intId)
 			{
-				$arrScan = $this->scanDirRecursive($uuid);
-				$arrAllUuids = array_merge($arrAllUuids, $arrScan);
+				$arrScan = $this->scanDirRecursive($intId);
+				$arrAllIds = array_merge($arrAllIds, $arrScan);
 			}
 		}
 
-		$this->arrUuids = array_unique($arrAllUuids);
+		$this->arrIds = array_unique($arrAllIds);
 	}
 
 
@@ -118,28 +118,28 @@ class ImageSorter extends \Controller
 	 * scanDirRecursive function.
 	 *
 	 * @access protected
-	 * @param string $uuid
+	 * @param int $intId
 	 * @return array
 	 */
-	protected function scanDirRecursive($uuid)
+	protected function scanDirRecursive($intId)
 	{
-		$arrUuids = array();
-		$objFile = \FilesModel::findByUuid($uuid);
+		$arrIds = array();
+		$objFile = \FilesModel::findByPk($intId);
 
 		switch($objFile->type)
 		{
 			case 'folder':
-				$objChildren = \FilesModel::findByPid($uuid);
+				$objChildren = \FilesModel::findByPid($intId);
 
 				if($objChildren !== null)
 				{
 					while($objChildren->next())
 					{
-						$arrScan = $this->scanDirRecursive($objChildren->uuid);
+						$arrScan = $this->scanDirRecursive($objChildren->id);
 
 						if (is_array($arrScan) && count($arrScan) > 0)
 						{
-							$arrUuids = array_merge($arrUuids, $arrScan);
+							$arrIds = array_merge($arrIds, $arrScan);
 						}
 					}
 				}
@@ -151,19 +151,19 @@ class ImageSorter extends \Controller
 				{
 					if(in_array($objFile->extension, $this->arrExtensions))
 					{
-						$arrUuids[] = $objFile->uuid;
+						$arrIds[] = $objFile->id;
 					}
 				}
 
 				// Set all file ids if there are no extensions required
 				else
 				{
-					$arrUuids[] = $objFile->uuid;
+					$arrIds[] = $objFile->id;
 				}
 			break;
 		}
 
-		return array_unique($arrUuids);
+		return array_unique($arrIds);
 	}
 
 
@@ -177,7 +177,7 @@ class ImageSorter extends \Controller
 	 */
 	public function sortImagesBy($strSortKey, $strSortDirection = 'ASC')
 	{
-		if(!is_array($this->arrUuids) || count($this->arrUuids) < 1)
+		if(!is_array($this->arrIds) || count($this->arrIds) < 1)
 		{
 			return false;
 		}
@@ -202,15 +202,15 @@ class ImageSorter extends \Controller
 		}
 		else if($strSortKey == 'random')
 		{
-			shuffle($this->arrUuids);
+			shuffle($this->arrIds);
 		}
 		else
 		{
 			$arrSort = array();
 
-			foreach($this->arrUuids as $uuid)
+			foreach($this->arrIds as $intId)
 			{
-				$objFiles = \FilesModel::findByUuid($uuid);
+				$objFiles = \FilesModel::findByPk($intId);
 
 				if ($objFiles !== null)
 				{
@@ -230,7 +230,7 @@ class ImageSorter extends \Controller
 								}
 							}
 
-							$arrSort[$objFiles->uuid] = $metaTitle;
+							$arrSort[$objFiles->id] = $metaTitle;
 						break;
 
 						case 'name':
@@ -242,7 +242,7 @@ class ImageSorter extends \Controller
 								$filename = $objFiles->name;
 							}
 
-							$arrSort[$objFiles->uuid] = $filename;
+							$arrSort[$objFiles->id] = $filename;
 						break;
 
 						case 'date':
@@ -254,19 +254,19 @@ class ImageSorter extends \Controller
 								$tstamp = $objFiles->tstamp;
 							}
 
-							$arrSort[$objFiles->uuid] = $tstamp;
+							$arrSort[$objFiles->id] = $tstamp;
 						break;
 					}
 				}
 			}
 
 			asort($arrSort, $sortType);
-			$this->arrUuids = array_keys($arrSort);
+			$this->arrIds = array_keys($arrSort);
 		}
 
 		if($strSortDirection == 'DESC')
 		{
-			$this->arrUuids = array_reverse($this->arrUuids);
+			$this->arrIds = array_reverse($this->arrIds);
 		}
 
 		return true;
@@ -274,13 +274,13 @@ class ImageSorter extends \Controller
 
 
 	/**
-	 * getImageUuids function.
+	 * getImageIds function.
 	 *
 	 * @access public
 	 * @return array
 	 */
-	public function getImageUuids()
+	public function getImageIds()
 	{
-		return $this->arrUuids;
+		return $this->arrIds;
 	}
 }
