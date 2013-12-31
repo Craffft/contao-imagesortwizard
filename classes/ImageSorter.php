@@ -103,9 +103,9 @@ class ImageSorter extends \Controller
 		// Check for array with content
 		if (is_array($arrUuids) && count($arrUuids) > 0)
 		{
-			foreach ($arrUuids as $intId)
+			foreach ($arrUuids as $uuid)
 			{
-				$arrScan = $this->scanDirRecursive($intId);
+				$arrScan = $this->scanDirRecursive($uuid);
 				$arrAllUuids = array_merge($arrAllUuids, $arrScan);
 			}
 		}
@@ -208,9 +208,9 @@ class ImageSorter extends \Controller
 		{
 			$arrSort = array();
 
-			foreach($this->arrUuids as $intId)
+			foreach($this->arrUuids as $uuid)
 			{
-				$objFiles = \FilesModel::findByPk($intId);
+				$objFiles = \FilesModel::findByUuid($uuid);
 
 				if ($objFiles !== null)
 				{
@@ -230,7 +230,7 @@ class ImageSorter extends \Controller
 								}
 							}
 
-							$arrSort[$objFiles->id] = $metaTitle;
+							$arrSort[$objFiles->uuid] = $metaTitle;
 						break;
 
 						case 'name':
@@ -242,7 +242,7 @@ class ImageSorter extends \Controller
 								$filename = $objFiles->name;
 							}
 
-							$arrSort[$objFiles->id] = $filename;
+							$arrSort[$objFiles->uuid] = $filename;
 						break;
 
 						case 'date':
@@ -254,7 +254,7 @@ class ImageSorter extends \Controller
 								$tstamp = $objFiles->tstamp;
 							}
 
-							$arrSort[$objFiles->id] = $tstamp;
+							$arrSort[$objFiles->uuid] = $tstamp;
 						break;
 					}
 				}
