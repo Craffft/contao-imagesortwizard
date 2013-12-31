@@ -146,7 +146,7 @@ class ImageSortWizard extends \Widget
 				{
 					while($objFiles->next())
 					{
-						if (in_array($objFiles->uuid, $this->sortImages))
+						if (in_array($objFiles->uuid, $this->sortImages) || in_array($objFiles->id, $this->sortImages)) // Backwards compatibility (id)
 						{
 							$newVarValue[] = $objFiles->uuid;
 						}
@@ -199,7 +199,7 @@ class ImageSortWizard extends \Widget
 
 					$return .= '<li>';
 						$return .= $thumbnail;
-						$return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars($this->varValue[$i]).'"' . $this->getAttributes() . '>';
+						$return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars(\String::binToUuid($objFiles->uuid)).'"' . $this->getAttributes() . '>';
 					$return .= '</li>';
 
 					$i++;
@@ -233,10 +233,10 @@ class ImageSortWizard extends \Widget
 
 		// Fetch
 		$arrSortfiles = $objSortfiles->fetchAssoc();
-		$arrIds = deserialize($arrSortfiles[$this->sortfiles]);
+		$arrUuids = deserialize($arrSortfiles[$this->sortfiles]);
 
 		// Create new object from ImageSorter and get unsorted files
-		$objImageSorter = new ImageSorter($arrIds, $this->extensions);
+		$objImageSorter = new ImageSorter($arrUuids, $this->extensions);
 		$objImageSorter->sortImagesBy('custom', 'ASC');
 
 		return $objImageSorter->getImageUuids();
