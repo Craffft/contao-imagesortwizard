@@ -10,20 +10,20 @@
  * @copyright  Daniel Kiesel 2012-2014
  */
 
-.tl_image_sort_wizard
+.tl_imagesortwizard
 {
 	overflow: hidden;
 	margin: 0 0 9px;
 }
 
-.tl_image_sort_wizard, .tl_image_sort_wizard ul > li
+.tl_imagesortwizard, .tl_imagesortwizard ul > li
 {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 }
 
-.tl_image_sort_wizard ul > li
+.tl_imagesortwizard ul > li
 {
 	cursor: move;
 	float: left;
@@ -31,23 +31,23 @@
 	line-height: 0px;
 }
 
-.tl_image_sort_wizard ul > li img
+.tl_imagesortwizard ul > li img
 {
 	margin: 2px;
 	border: 1px solid #808080;
 }
 
-.tl_image_sort_wizard .tl_text
+.tl_imagesortwizard .tl_text
 {
 	width: 586px;
 }
 
-.tl_image_sort_wizard .tl_content_right
+.tl_imagesortwizard .tl_content_right
 {
 	margin-left: 0px;
 }
 
-.tl_image_sort_wizard_img
+.tl_imagesortwizard_img
 {
 	position: relative;
 	top: 3px;

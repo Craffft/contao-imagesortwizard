@@ -89,8 +89,8 @@ class ImageSortWizard extends \Widget
 		// Add JavaScript and css
 		if (TL_MODE == 'BE')
 		{
-			$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/image_sort_wizard/assets/js/image_sort_wizard.min.js';
-		    $GLOBALS['TL_CSS'][] = 'system/modules/image_sort_wizard/assets/css/image_sort_wizard.min.css|screen';
+			$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/imagesortwizard/assets/js/imagesortwizard.min.js';
+		    $GLOBALS['TL_CSS'][] = 'system/modules/imagesortwizard/assets/css/imagesortwizard.min.css|screen';
 		}
 
 		// Change the order
@@ -116,7 +116,7 @@ class ImageSortWizard extends \Widget
 		}
 
 		$tabindex = 0;
-		$return .= '<div id="ctrl_'.$this->strId.'" class="tl_image_sort_wizard">';
+		$return .= '<div id="ctrl_'.$this->strId.'" class="tl_imagesortwizard">';
 			$return .= '<ul class="sortable">';
 
 			// Get sort Images

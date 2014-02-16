@@ -32,7 +32,7 @@ Backend.imageSortWizard = function(el, command, id) {
 	}
 }
 window.addEvent('domready', function() {
-	$$('.tl_image_sort_wizard').each(function(el) {
+	$$('.tl_imagesortwizard').each(function(el) {
 		var els = el.getElement('.sortable');
 		if (els.hasClass('sortable-done')) return;
 		new Sortables(els, {

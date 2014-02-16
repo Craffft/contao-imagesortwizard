@@ -26,8 +26,8 @@ ClassLoader::addNamespaces(array
 ClassLoader::addClasses(array
 (
 	// Classes
-	'ImageSortWizard\ImageSorter'     => 'system/modules/image_sort_wizard/classes/ImageSorter.php',
+	'ImageSortWizard\ImageSorter'     => 'system/modules/imagesortwizard/classes/ImageSorter.php',
 
 	// Widgets
-	'ImageSortWizard\ImageSortWizard' => 'system/modules/image_sort_wizard/widgets/ImageSortWizard.php',
+	'ImageSortWizard\ImageSortWizard' => 'system/modules/imagesortwizard/widgets/ImageSortWizard.php',
 ));
