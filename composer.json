@@ -26,7 +26,7 @@
         "classmap": ["system/"]
     },
     "replace": {
-        "contao-legacy/imagesortwizard": "*"
+        "contao-legacy/image_sort_wizard": "*"
     },
     "extra": {
         "contao": {

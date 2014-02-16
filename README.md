@@ -1,4 +1,10 @@
-contao-imagesortwizard
-======================
+Imagesortwizard for Contao OpenSource CMS
+==========================
 
-This is the Contao extension imagesortwizard
+Adds a wizard to sort images via drag 'n' drop
+
+License
+-------
+
+This Contao extension is licensed under the terms of the LGPLv3.
+http://www.gnu.org/licenses/lgpl-3.0.html
