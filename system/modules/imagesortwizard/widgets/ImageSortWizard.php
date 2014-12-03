@@ -94,6 +94,7 @@ class ImageSortWizard extends \Widget
 	 */
 	public function generate()
 	{
+        $return = '';
 		$arrButtons = array('up', 'down');
 		$strCommand = 'cmd_' . $this->strField;
 
