@@ -11,12 +11,10 @@
  * @copyright  Daniel Kiesel 2012-2014
  */
 
-
 /**
  * Namespace
  */
 namespace ImageSortWizard;
-
 
 /**
  * Class ImageSorter
@@ -27,260 +25,226 @@ namespace ImageSortWizard;
  */
 class ImageSorter extends \Controller
 {
+    /**
+     * arrUuids
+     *
+     * @var array
+     * @access private
+     */
+    private $arrUuids;
 
-	/**
-	 * arrUuids
-	 *
-	 * @var array
-	 * @access private
-	 */
-	private $arrUuids;
+    /**
+     * arrExtensions
+     *
+     * @var array
+     * @access private
+     */
+    private $arrExtensions;
 
+    /**
+     * __construct function.
+     *
+     * @access public
+     * @param  array  $arrUuids
+     * @param  string $strExtensions (default: null)
+     * @return void
+     */
+    public function __construct($arrUuids, $strExtensions = null)
+    {
+        if (!is_array($arrUuids)) {
+            return false;
+        }
 
-	/**
-	 * arrExtensions
-	 *
-	 * @var array
-	 * @access private
-	 */
-	private $arrExtensions;
+        // Set extensions
+        $this->setExtensions($strExtensions);
 
+        // Set all image ids
+        $this->setAllImageUuids($arrUuids);
 
-	/**
-	 * __construct function.
-	 *
-	 * @access public
-	 * @param array $arrUuids
-	 * @param string $strExtensions (default: null)
-	 * @return void
-	 */
-	public function __construct($arrUuids, $strExtensions = null)
-	{
-		if(!is_array($arrUuids))
-		{
-			return false;
-		}
+        parent::__construct();
+    }
 
-		// Set extensions
-		$this->setExtensions($strExtensions);
+    /**
+     * setExtensions function.
+     *
+     * @access protected
+     * @param  string $strExtensions
+     * @return void
+     */
+    protected function setExtensions($strExtensions)
+    {
+        $this->arrExtensions = array();
 
-		// Set all image ids
-		$this->setAllImageUuids($arrUuids);
+        if ($strExtensions !== null) {
+            $this->arrExtensions = explode(',', $strExtensions);
+        }
+    }
 
-		parent::__construct();
-	}
+    /**
+     * setAllImageUuids function.
+     *
+     * @access protected
+     * @param  array $arrUuids
+     * @return void
+     */
+    protected function setAllImageUuids($arrUuids)
+    {
+        $arrAllUuids = array();
 
+        // Check for array with content
+        if (is_array($arrUuids) && count($arrUuids) > 0) {
+            foreach ($arrUuids as $uuid) {
+                $arrScan = $this->scanDirRecursive($uuid);
+                $arrAllUuids = array_merge($arrAllUuids, $arrScan);
+            }
+        }
 
-	/**
-	 * setExtensions function.
-	 *
-	 * @access protected
-	 * @param string $strExtensions
-	 * @return void
-	 */
-	protected function setExtensions($strExtensions)
-	{
-		$this->arrExtensions = array();
+        $this->arrUuids = array_unique($arrAllUuids);
+    }
 
-		if($strExtensions !== null)
-		{
-			$this->arrExtensions = explode(',', $strExtensions);
-		}
-	}
+    /**
+     * scanDirRecursive function.
+     *
+     * @access protected
+     * @param  string $uuid
+     * @return array
+     */
+    protected function scanDirRecursive($uuid)
+    {
+        $arrUuids = array();
+        $objFile = \FilesModel::findByUuid($uuid);
 
+        switch ($objFile->type) {
+            case 'folder':
+                $objChildren = \FilesModel::findByPid($uuid);
 
-	/**
-	 * setAllImageUuids function.
-	 *
-	 * @access protected
-	 * @param array $arrUuids
-	 * @return void
-	 */
-	protected function setAllImageUuids($arrUuids)
-	{
-		$arrAllUuids = array();
+                if ($objChildren !== null) {
+                    while ($objChildren->next()) {
+                        $arrScan = $this->scanDirRecursive($objChildren->uuid);
 
-		// Check for array with content
-		if (is_array($arrUuids) && count($arrUuids) > 0)
-		{
-			foreach ($arrUuids as $uuid)
-			{
-				$arrScan = $this->scanDirRecursive($uuid);
-				$arrAllUuids = array_merge($arrAllUuids, $arrScan);
-			}
-		}
+                        if (is_array($arrScan) && count($arrScan) > 0) {
+                            $arrUuids = array_merge($arrUuids, $arrScan);
+                        }
+                    }
+                }
+            break;
 
-		$this->arrUuids = array_unique($arrAllUuids);
-	}
+            case 'file':
+                // Set only the file ids with the correct extension
+                if (count($this->arrExtensions) > 0) {
+                    if (in_array($objFile->extension, $this->arrExtensions)) {
+                        $arrUuids[] = $objFile->uuid;
+                    }
+                }
 
+                // Set all file ids if there are no extensions required
+                else {
+                    $arrUuids[] = $objFile->uuid;
+                }
+            break;
+        }
 
-	/**
-	 * scanDirRecursive function.
-	 *
-	 * @access protected
-	 * @param string $uuid
-	 * @return array
-	 */
-	protected function scanDirRecursive($uuid)
-	{
-		$arrUuids = array();
-		$objFile = \FilesModel::findByUuid($uuid);
+        return array_unique($arrUuids);
+    }
 
-		switch($objFile->type)
-		{
-			case 'folder':
-				$objChildren = \FilesModel::findByPid($uuid);
+    /**
+     * sortImagesBy function.
+     *
+     * @access public
+     * @param  string $strSortKey
+     * @param  string $strSortDirection (default: 'ASC')
+     * @return bool
+     */
+    public function sortImagesBy($strSortKey, $strSortDirection = 'ASC')
+    {
+        if (!is_array($this->arrUuids) || count($this->arrUuids) < 1) {
+            return false;
+        }
 
-				if($objChildren !== null)
-				{
-					while($objChildren->next())
-					{
-						$arrScan = $this->scanDirRecursive($objChildren->uuid);
+        // Lower and uppercase for attributes
+        $strSortKey = strtolower($strSortKey);
+        $strSortDirection = strtoupper($strSortDirection);
 
-						if (is_array($arrScan) && count($arrScan) > 0)
-						{
-							$arrUuids = array_merge($arrUuids, $arrScan);
-						}
-					}
-				}
-			break;
+        /**
+         * SET SORT FIELDS HERE
+         *
+         * metatitle
+         * name
+         * date
+         * random
+         * custom
+         */
+        if ($strSortKey == 'custom') {
+            // Do nothing
+        } elseif ($strSortKey == 'random') {
+            shuffle($this->arrUuids);
+        } else {
+            $arrSort = array();
 
-			case 'file':
-				// Set only the file ids with the correct extension
-				if(count($this->arrExtensions) > 0)
-				{
-					if(in_array($objFile->extension, $this->arrExtensions))
-					{
-						$arrUuids[] = $objFile->uuid;
-					}
-				}
+            foreach ($this->arrUuids as $uuid) {
+                $objFiles = \FilesModel::findByUuid($uuid);
 
-				// Set all file ids if there are no extensions required
-				else
-				{
-					$arrUuids[] = $objFile->uuid;
-				}
-			break;
-		}
+                if ($objFiles !== null) {
+                    switch ($strSortKey) {
+                        case 'metatitle':
+                            $sortType = SORT_STRING;
+                            $metaTitle = '';
 
-		return array_unique($arrUuids);
-	}
+                            if ($objFiles->meta != '') {
+                                $objFiles->meta = deserialize($objFiles->meta);
 
+                                if ($objFiles->meta[$GLOBALS['TL_LANGUAGE']]['title'] != '') {
+                                    $metaTitle = $objFiles->meta[$GLOBALS['TL_LANGUAGE']]['title'];
+                                }
+                            }
 
-	/**
-	 * sortImagesBy function.
-	 *
-	 * @access public
-	 * @param string $strSortKey
-	 * @param string $strSortDirection (default: 'ASC')
-	 * @return bool
-	 */
-	public function sortImagesBy($strSortKey, $strSortDirection = 'ASC')
-	{
-		if(!is_array($this->arrUuids) || count($this->arrUuids) < 1)
-		{
-			return false;
-		}
+                            $arrSort[$objFiles->uuid] = $metaTitle;
+                        break;
 
-		// Lower and uppercase for attributes
-		$strSortKey = strtolower($strSortKey);
-		$strSortDirection = strtoupper($strSortDirection);
+                        case 'name':
+                            $sortType = SORT_STRING;
+                            $filename = '';
 
+                            if ($objFiles->name != '') {
+                                $filename = $objFiles->name;
+                            }
 
-		/**
-		 * SET SORT FIELDS HERE
-		 *
-		 * metatitle
-		 * name
-		 * date
-		 * random
-		 * custom
-		 */
-		if($strSortKey == 'custom')
-		{
-			// Do nothing
-		}
-		else if($strSortKey == 'random')
-		{
-			shuffle($this->arrUuids);
-		}
-		else
-		{
-			$arrSort = array();
+                            $arrSort[$objFiles->uuid] = $filename;
+                        break;
 
-			foreach($this->arrUuids as $uuid)
-			{
-				$objFiles = \FilesModel::findByUuid($uuid);
+                        case 'date':
+                            $sortType = SORT_NUMERIC;
+                            $tstamp = '';
 
-				if ($objFiles !== null)
-				{
-					switch($strSortKey)
-					{
-						case 'metatitle':
-							$sortType = SORT_STRING;
-							$metaTitle = '';
+                            if ($objFiles->tstamp != '') {
+                                $tstamp = $objFiles->tstamp;
+                            }
 
-							if($objFiles->meta != '')
-							{
-								$objFiles->meta = deserialize($objFiles->meta);
+                            $arrSort[$objFiles->uuid] = $tstamp;
+                        break;
+                    }
+                }
+            }
 
-								if($objFiles->meta[$GLOBALS['TL_LANGUAGE']]['title'] != '')
-								{
-									$metaTitle = $objFiles->meta[$GLOBALS['TL_LANGUAGE']]['title'];
-								}
-							}
+            asort($arrSort, $sortType);
+            $this->arrUuids = array_keys($arrSort);
+        }
 
-							$arrSort[$objFiles->uuid] = $metaTitle;
-						break;
+        if ($strSortDirection == 'DESC') {
+            $this->arrUuids = array_reverse($this->arrUuids);
+        }
 
-						case 'name':
-							$sortType = SORT_STRING;
-							$filename = '';
+        return true;
+    }
 
-							if($objFiles->name != '')
-							{
-								$filename = $objFiles->name;
-							}
-
-							$arrSort[$objFiles->uuid] = $filename;
-						break;
-
-						case 'date':
-							$sortType = SORT_NUMERIC;
-							$tstamp = '';
-
-							if($objFiles->tstamp != '')
-							{
-								$tstamp = $objFiles->tstamp;
-							}
-
-							$arrSort[$objFiles->uuid] = $tstamp;
-						break;
-					}
-				}
-			}
-
-			asort($arrSort, $sortType);
-			$this->arrUuids = array_keys($arrSort);
-		}
-
-		if($strSortDirection == 'DESC')
-		{
-			$this->arrUuids = array_reverse($this->arrUuids);
-		}
-
-		return true;
-	}
-
-
-	/**
-	 * getImageUuids function.
-	 *
-	 * @access public
-	 * @return array
-	 */
-	public function getImageUuids()
-	{
-		return $this->arrUuids;
-	}
+    /**
+     * getImageUuids function.
+     *
+     * @access public
+     * @return array
+     */
+    public function getImageUuids()
+    {
+        return $this->arrUuids;
+    }
 }
