@@ -73,9 +73,20 @@ class ImageSortWizard extends \Widget
 			return parent::validator($varInput);
 		}
 
-		return parent::validator(trim($varInput));
+        $varInput = $this->fixUuidToBinary($varInput);
+        $varInput = trim($varInput);
+
+		return parent::validator($varInput);
 	}
 
+    protected function fixUuidToBinary($strUuid)
+    {
+        if (\Validator::isStringUuid($strUuid)) {
+            $strUuid = \String::uuidToBin($strUuid);
+        }
+
+        return $strUuid;
+    }
 
 	/**
 	 * Generate the widget and return it as string
