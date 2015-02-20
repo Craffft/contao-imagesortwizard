@@ -6,7 +6,7 @@
  * Copyright (C) 2005-2014 Leo Feyer
  *
  * @package    ImageSortWizard
- * @author     Daniel Kiesel <https://github.com/icodr8>
+ * @author     Daniel Kiesel <daniel@craffft.de>
  * @license    LGPL
  * @copyright  Daniel Kiesel 2012-2014
  */
@@ -20,7 +20,7 @@ namespace ImageSortWizard;
  * Class ImageSortWizard
  *
  * @copyright  Daniel Kiesel 2012-2014
- * @author     Daniel Kiesel <https://github.com/icodr8>
+ * @author     Daniel Kiesel <daniel@craffft.de>
  * @package    ImageSortWizard
  */
 class ImageSortWizard extends \Widget
