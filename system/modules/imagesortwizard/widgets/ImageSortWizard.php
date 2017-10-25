@@ -75,7 +75,7 @@ class ImageSortWizard extends \Widget
     protected function fixUuidToBinary($strUuid)
     {
         if (\Validator::isStringUuid($strUuid)) {
-            $strUuid = \String::uuidToBin($strUuid);
+            $strUuid = \StringUtil::uuidToBin($strUuid);
         }
 
         return $strUuid;
@@ -189,7 +189,7 @@ class ImageSortWizard extends \Widget
 
                 $return .= '<li>';
                 $return .= $thumbnail;
-                $return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars(\String::binToUuid($objFiles->uuid)).'"'.$this->getAttributes().'>';
+                $return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars(\StringUtil::binToUuid($objFiles->uuid)).'"'.$this->getAttributes().'>';
                 $return .= '</li>';
 
                 $i++;
