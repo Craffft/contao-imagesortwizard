@@ -189,7 +189,7 @@ class ImageSortWizard extends \Widget
 
                 $return .= '<li>';
                 $return .= $thumbnail;
-                $return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.specialchars(\StringUtil::binToUuid($objFiles->uuid)).'"'.$this->getAttributes().'>';
+                $return .= '<input type="hidden" name="'.$this->strId.'[]" class="tl_text" tabindex="'.++$tabindex.'" value="'.\StringUtil::specialchars(\StringUtil::binToUuid($objFiles->uuid)).'"'.$this->getAttributes().'>';
                 $return .= '</li>';
 
                 $i++;
